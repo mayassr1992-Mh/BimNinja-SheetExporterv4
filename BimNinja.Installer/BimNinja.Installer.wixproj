@@ -6,6 +6,9 @@
     <DefineConstants>$(DefineConstants);AddinSourceDir=..\BimNinja.SheetExporter.Addin\bin\Release</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="4.0.2" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="Icons\appicon.ico" />
     <None Include="Icons\banner.bmp" />
     <None Include="Icons\dialog.bmp" />
