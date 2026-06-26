@@ -1,0 +1,216 @@
+name: Build BIM Ninja Sheet Exporter
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+env:
+  BUILD_CONFIGURATION: Release
+  BUILD_PLATFORM: x64
+
+jobs:
+  # ==========================================
+  # JOB 1: Build the C# addin and licensing DLLs
+  # ==========================================
+  build-addin:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Setup MSBuild (comes with Visual Studio Enterprise on windows-latest)
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      # Setup NuGet for package restore
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      # Restore NuGet packages (including WiX SDK if referenced)
+      - name: Restore NuGet packages
+        run: nuget restore BimNinja.SheetExporter.sln
+
+      # Try to get Revit API DLLs (local copy first, then download)
+      - name: Acquire Revit API DLLs
+        shell: pwsh
+        run: |
+          $exitCode = 0
+          try {
+            & .\scripts\download-revit-api.ps1 -OutputDir "libs"
+          } catch {
+            Write-Host "Warning: download-revit-api.ps1 failed. Checking if DLLs are already committed..." -ForegroundColor Yellow
+          }
+          if (-not (Test-Path "libs\RevitAPI.dll")) {
+            Write-Host "ERROR: RevitAPI.dll not found. Please commit the DLLs to your repository (see libs/README.md)." -ForegroundColor Red
+            $exitCode = 1
+          }
+          exit $exitCode
+
+      # Build the main solution (addin + licensing + keygen)
+      - name: Build Solution (Release)
+        run: msbuild BimNinja.SheetExporter.sln /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform="${{env.BUILD_PLATFORM}}" /verbosity:minimal
+
+      # Verify output files exist
+      - name: Verify Build Outputs
+        shell: pwsh
+        run: |
+          $files = @(
+            "BimNinja.SheetExporter.Addin\bin\Release\BimNinja.SheetExporter.Addin.dll",
+            "BimNinja.SheetExporter.Addin\bin\Release\BimNinja.Licensing.dll",
+            "BimNinja.SheetExporter.Addin\bin\Release\BimNinja.SheetExporter.Addin.addin",
+            "BimNinja.Licensing.KeyGen\bin\Release\BimNinja.Licensing.KeyGen.exe"
+          )
+          $allGood = $true
+          foreach ($f in $files) {
+            if (Test-Path $f) {
+              Write-Host "OK: $f" -ForegroundColor Green
+            } else {
+              Write-Host "MISSING: $f" -ForegroundColor Red
+              $allGood = $false
+            }
+          }
+          if (-not $allGood) { exit 1 }
+
+      # Upload compiled artifacts for the installer jobs
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: BimNinja-SheetExporter-Build
+          path: |
+            BimNinja.SheetExporter.Addin/bin/Release/*.dll
+            BimNinja.SheetExporter.Addin/bin/Release/*.addin
+            BimNinja.Licensing.KeyGen/bin/Release/*.exe
+
+  # ==========================================
+  # JOB 2: Build Inno Setup EXE installer
+  # ==========================================
+  build-installer-inno:
+    runs-on: windows-latest
+    needs: build-addin
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Download the compiled DLLs from the previous job
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: BimNinja-SheetExporter-Build
+          path: BimNinja.SheetExporter.Addin\bin\Release\
+
+      # Install Inno Setup (silent install)
+      - name: Install Inno Setup
+        run: |
+          choco install innosetup --yes --no-progress
+
+      # Build the installer
+      - name: Build Installer (Inno Setup)
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "BimNinja.Installer\Installer.iss"
+
+      # Verify installer was created
+      - name: Verify Installer
+        shell: pwsh
+        run: |
+          if (Test-Path "BimNinjaSheetExporter_Setup.exe") {
+            $size = (Get-Item "BimNinjaSheetExporter_Setup.exe").Length / 1MB
+            Write-Host "Installer created: BimNinjaSheetExporter_Setup.exe ($([math]::Round($size,2)) MB)" -ForegroundColor Green
+          } else {
+            Write-Host "ERROR: Installer not found!" -ForegroundColor Red
+            exit 1
+          }
+
+      # Upload the installer
+      - name: Upload EXE Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: BimNinjaSheetExporter-Setup-EXE
+          path: BimNinjaSheetExporter_Setup.exe
+
+  # ==========================================
+  # JOB 3: Build WiX MSI installer (optional)
+  # ==========================================
+  build-installer-wix:
+    runs-on: windows-latest
+    needs: build-addin
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Restore NuGet packages
+        run: nuget restore BimNinja.SheetExporter.sln
+
+      # Download compiled DLLs
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: BimNinja-SheetExporter-Build
+          path: BimNinja.SheetExporter.Addin\bin\Release\
+
+      # WiX v4 SDK is restored via NuGet; build with MSBuild
+      - name: Build WiX Installer
+        run: |
+          msbuild "BimNinja.Installer\BimNinja.Installer.wixproj" /p:Configuration=Release /p:Platform=x64 /verbosity:minimal
+
+      # Verify MSI was created
+      - name: Verify MSI
+        shell: pwsh
+        run: |
+          $msi = Get-ChildItem -Path "BimNinja.Installer" -Filter "*.msi" -Recurse | Select-Object -First 1
+          if ($msi) {
+            $size = $msi.Length / 1MB
+            Write-Host "MSI created: $($msi.FullName) ($([math]::Round($size,2)) MB)" -ForegroundColor Green
+          } else {
+            Write-Host "WARNING: MSI not found. WiX build may have failed." -ForegroundColor Yellow
+            # Don't fail - WiX is optional
+          }
+
+      # Upload MSI if found
+      - name: Upload MSI Installer
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: BimNinjaSheetExporter-Setup-MSI
+          path: BimNinja.Installer/**/*.msi
+          if-no-files-found: ignore
+
+  # ==========================================
+  # JOB 4: Release (optional - creates GitHub Release with artifacts)
+  # ==========================================
+  create-release:
+    runs-on: windows-latest
+    needs: [build-addin, build-installer-inno]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    # Only run on main branch pushes, not PRs
+
+    steps:
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create ZIP of Release Files
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "artifacts\BimNinja-SheetExporter-Build\*" -DestinationPath "BimNinjaSheetExporter-Addin.zip"
+          Copy-Item "artifacts\BimNinjaSheetExporter-Setup-EXE\BimNinjaSheetExporter_Setup.exe" -Destination "BimNinjaSheetExporter_Setup.exe"
+
+      - name: Upload Release Assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: BimNinjaSheetExporter-Release-v1.0.0
+          path: |
+            BimNinjaSheetExporter_Setup.exe
+            BimNinjaSheetExporter-Addin.zip
