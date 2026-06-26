@@ -22,6 +22,7 @@ namespace BimNinja.SheetExporter.UI
             InitializeComponent();
             _doc = doc;
             _service = new SheetExportService(doc);
+            NamingPattern.Text = "{SheetNumber} - {SheetName}";
             LoadSheets();
         }
 
@@ -85,7 +86,7 @@ namespace BimNinja.SheetExporter.UI
             ExportBtn.IsEnabled = false;
             try
             {
-                var progress = new Progress<string>(msg => { /* Could show in status bar */ });
+                var progress = new Progress<string>(msg => { });
                 await System.Threading.Tasks.Task.Run(() => _service.ExportSheets(selected, settings, progress));
 
                 MessageBox.Show($"Successfully exported {selected.Count} sheet(s).", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -95,7 +96,8 @@ namespace BimNinja.SheetExporter.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Export failed:\n{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Export failed:
+{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             finally
             {
