@@ -25,9 +25,9 @@
             <StackPanel Grid.Column="0" Orientation="Horizontal">
                 <TextBlock Text="Export Format:" VerticalAlignment="Center" Margin="0,0,5,0"/>
                 <ComboBox x:Name="FormatCombo" Width="120" SelectedIndex="0">
-                    <ComboBoxItem>PDF</ComboBoxItem>
-                    <ComboBoxItem>DWG</ComboBoxItem>
-                    <ComboBoxItem>DWF</ComboBoxItem>
+                    <ComboBoxItem Content="PDF"/>
+                    <ComboBoxItem Content="DWG"/>
+                    <ComboBoxItem Content="DWF"/>
                 </ComboBox>
                 <CheckBox x:Name="CombineCheck" Content="Combine to single file" Margin="15,0,0,0" VerticalAlignment="Center"/>
             </StackPanel>
@@ -37,11 +37,16 @@
         <DataGrid Grid.Row="2" x:Name="SheetsGrid" AutoGenerateColumns="False" CanUserAddRows="False"
                   GridLinesVisibility="Horizontal" SelectionMode="Extended">
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="Export" Binding="{Binding IsSelected}" Width="60"/>
-                <DataGridTextColumn Header="Sheet Number" Binding="{Binding SheetNumber}" Width="120" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Sheet Name" Binding="{Binding SheetName}" Width="*" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Revision" Binding="{Binding Revision}" Width="80" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Drawn By" Binding="{Binding DrawnBy}" Width="100" IsReadOnly="True"/>
+                <DataGridCheckBoxColumn Header="Export" Width="60"
+                    Binding="{Binding IsSelected}"/>
+                <DataGridTextColumn Header="Sheet Number" Width="120" IsReadOnly="True"
+                    Binding="{Binding SheetNumber}"/>
+                <DataGridTextColumn Header="Sheet Name" Width="*" IsReadOnly="True"
+                    Binding="{Binding SheetName}"/>
+                <DataGridTextColumn Header="Revision" Width="80" IsReadOnly="True"
+                    Binding="{Binding Revision}"/>
+                <DataGridTextColumn Header="Drawn By" Width="100" IsReadOnly="True"
+                    Binding="{Binding DrawnBy}"/>
             </DataGrid.Columns>
         </DataGrid>
 
@@ -57,7 +62,7 @@
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal">
                 <TextBlock Text="Naming:" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                <TextBox x:Name="NamingPattern" Width="200" Text="{SheetNumber} - {SheetName}"/>
+                <TextBox x:Name="NamingPattern" Width="200"/>
             </StackPanel>
         </Grid>
 
