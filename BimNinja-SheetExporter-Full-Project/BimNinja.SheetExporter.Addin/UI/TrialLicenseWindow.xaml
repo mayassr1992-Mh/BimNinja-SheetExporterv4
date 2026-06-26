@@ -1,0 +1,40 @@
+<Window x:Class="BimNinja.SheetExporter.UI.TrialLicenseWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="BIM Ninja - License Activation" Height="400" Width="500"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        Background="#F5F5F5">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="BIM Ninja - Sheet Exporter" FontSize="22" FontWeight="Bold" Foreground="#2C3E50" HorizontalAlignment="Center"/>
+        <TextBlock Grid.Row="1" Text="License Activation" FontSize="14" Foreground="#7F8C8D" HorizontalAlignment="Center" Margin="0,5"/>
+
+        <Border Grid.Row="2" Background="#E8F5E9" BorderBrush="#27AE60" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,10">
+            <TextBlock x:Name="TrialStatusText" Text="Your 14-day trial is active." Foreground="#27AE60" TextWrapping="Wrap"/>
+        </Border>
+
+        <TextBlock Grid.Row="3" Text="Hardware ID:" Margin="0,10,0,2" FontWeight="Bold"/>
+        <TextBox Grid.Row="4" x:Name="HardwareIdBox" IsReadOnly="True" Background="#EEE" Padding="5"/>
+        <Button Grid.Row="5" x:Name="CopyIdBtn" Content="Copy Hardware ID" Margin="0,5" Padding="8,4" HorizontalAlignment="Right" Click="CopyIdBtn_Click"/>
+
+        <TextBlock Grid.Row="6" Text="Enter License Key:" Margin="0,10,0,2" FontWeight="Bold"/>
+        <TextBox Grid.Row="7" x:Name="LicenseKeyBox" Padding="5" VerticalAlignment="Top" Height="30"/>
+
+        <StackPanel Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,20">
+            <Button x:Name="StartTrialBtn" Content="Start Trial" Padding="15,8" Margin="0,0,10,0" Background="#3498DB" Foreground="White" Click="StartTrialBtn_Click"/>
+            <Button x:Name="ActivateBtn" Content="Activate" Padding="15,8" Background="#27AE60" Foreground="White" Click="ActivateBtn_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

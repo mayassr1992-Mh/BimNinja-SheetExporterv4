@@ -1,0 +1,16 @@
+<Project>
+  <!-- This file resolves the Revit API path for both local and CI builds -->
+  <PropertyGroup>
+    <!-- Local: check common Revit install paths -->
+    <RevitAPIPath Condition="Exists('C:\Program Files\Autodesk\Revit 2024\RevitAPI.dll')">C:\Program Files\Autodesk\Revit 2024</RevitAPIPath>
+    <RevitAPIPath Condition="'$(RevitAPIPath)' == '' AND Exists('C:\Program Files\Autodesk\Revit 2023\RevitAPI.dll')">C:\Program Files\Autodesk\Revit 2023</RevitAPIPath>
+    <RevitAPIPath Condition="'$(RevitAPIPath)' == '' AND Exists('C:\Program Files\Autodesk\Revit 2022\RevitAPI.dll')">C:\Program Files\Autodesk\Revit 2022</RevitAPIPath>
+    <RevitAPIPath Condition="'$(RevitAPIPath)' == '' AND Exists('$(MSBuildThisFileDirectory)libs\RevitAPI.dll')">$(MSBuildThisFileDirectory)libs</RevitAPIPath>
+    <RevitAPIPath Condition="'$(RevitAPIPath)' == ''">$(MSBuildThisFileDirectory)libs</RevitAPIPath>
+  </PropertyGroup>
+
+  <!-- Validation: warn if RevitAPI.dll is not found -->
+  <Target Name="ValidateRevitAPI" BeforeTargets="Build">
+    <Error Text="RevitAPI.dll not found. Run: powershell -File scripts/download-revit-api.ps1" Condition="!Exists('$(RevitAPIPath)\RevitAPI.dll')" />
+  </Target>
+</Project>

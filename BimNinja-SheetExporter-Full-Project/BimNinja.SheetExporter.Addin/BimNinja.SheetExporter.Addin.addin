@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>BIM Ninja Sheet Exporter</Name>
+    <Assembly>BimNinja.SheetExporter.Addin.dll</Assembly>
+    <FullClassName>BimNinja.SheetExporter.App</FullClassName>
+    <VendorId>BIMNINJA</VendorId>
+    <VendorDescription>BIM Ninja - Professional Revit Tools</VendorDescription>
+  </AddIn>
+</RevitAddIns>

@@ -1,0 +1,82 @@
+<Window x:Class="BimNinja.SheetExporter.UI.SheetExporterWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="BIM Ninja - Sheet Exporter" Height="650" Width="900"
+        WindowStartupLocation="CenterScreen" ResizeMode="CanResize"
+        Background="#F5F5F5">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="#2C3E50" Padding="15" CornerRadius="4">
+            <TextBlock Text="BIM Ninja - Sheet Exporter" Foreground="White" FontSize="20" FontWeight="Bold"/>
+        </Border>
+
+        <Grid Grid.Row="1" Margin="0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <TextBlock Text="Export Format:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <ComboBox x:Name="FormatCombo" Width="120" SelectedIndex="0">
+                    <ComboBoxItem>PDF</ComboBoxItem>
+                    <ComboBoxItem>DWG</ComboBoxItem>
+                    <ComboBoxItem>DWF</ComboBoxItem>
+                </ComboBox>
+                <CheckBox x:Name="CombineCheck" Content="Combine to single file" Margin="15,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+            <Button x:Name="RefreshBtn" Grid.Column="1" Content="Refresh Sheets" Padding="10,5" Click="RefreshBtn_Click"/>
+        </Grid>
+
+        <DataGrid Grid.Row="2" x:Name="SheetsGrid" AutoGenerateColumns="False" CanUserAddRows="False"
+                  GridLinesVisibility="Horizontal" SelectionMode="Extended">
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Header="Export" Binding="{Binding IsSelected}" Width="60"/>
+                <DataGridTextColumn Header="Sheet Number" Binding="{Binding SheetNumber}" Width="120" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Sheet Name" Binding="{Binding SheetName}" Width="*" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Revision" Binding="{Binding Revision}" Width="80" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Drawn By" Binding="{Binding DrawnBy}" Width="100" IsReadOnly="True"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Grid Grid.Row="3" Margin="0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <TextBlock Text="Output Folder:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <TextBox x:Name="OutputPath" Width="400" IsReadOnly="True" Background="#EEE"/>
+                <Button x:Name="BrowseBtn" Content="Browse..." Margin="5,0,0,0" Padding="8,3" Click="BrowseBtn_Click"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <TextBlock Text="Naming:" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <TextBox x:Name="NamingPattern" Width="200" Text="{SheetNumber} - {SheetName}"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <CheckBox x:Name="OpenFolderCheck" Content="Open folder after export" IsChecked="True" VerticalAlignment="Center"/>
+                <CheckBox x:Name="HideCropCheck" Content="Hide crop boundaries" IsChecked="True" Margin="15,0,0,0" VerticalAlignment="Center"/>
+                <CheckBox x:Name="HideScopeCheck" Content="Hide scope boxes" IsChecked="True" Margin="15,0,0,0" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button x:Name="SelectAllBtn" Content="Select All" Margin="0,0,5,0" Padding="10,5" Click="SelectAllBtn_Click"/>
+                <Button x:Name="DeselectAllBtn" Content="Deselect All" Margin="0,0,5,0" Padding="10,5" Click="DeselectAllBtn_Click"/>
+                <Button x:Name="ExportBtn" Content="Export" Background="#27AE60" Foreground="White" FontWeight="Bold"
+                        Padding="20,5" Click="ExportBtn_Click"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

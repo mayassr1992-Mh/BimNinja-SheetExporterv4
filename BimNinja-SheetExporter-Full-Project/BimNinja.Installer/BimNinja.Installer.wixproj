@@ -1,0 +1,13 @@
+<Project Sdk="WixToolset.Sdk/4.0.2">
+  <PropertyGroup>
+    <OutputName>BimNinjaSheetExporter</OutputName>
+    <Platforms>x64</Platforms>
+    <Configurations>Debug;Release</Configurations>
+    <DefineConstants>$(DefineConstants);AddinSourceDir=..\BimNinja.SheetExporter.Addin\bin\Release</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="Icons\appicon.ico" />
+    <None Include="Icons\banner.bmp" />
+    <None Include="Icons\dialog.bmp" />
+  </ItemGroup>
+</Project>

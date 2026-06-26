@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Package Name="BIM Ninja - Sheet Exporter" Manufacturer="BIM Ninja"
+           Version="1.0.0.0" UpgradeCode="A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+           Scope="perMachine">
+    <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Feature Id="Main" Title="BIM Ninja Sheet Exporter" Level="1">
+      <ComponentGroupRef Id="AddinFiles" />
+      <ComponentRef Id="AddinManifest" />
+    </Feature>
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="BIM Ninja\Sheet Exporter">
+        <Component Id="AddinManifest" Guid="B2C3D4E5-F6A7-8901-BCDE-F12345678901">
+          <File Id="AddinManifestFile" Source="..\BimNinja.SheetExporter.Addin\bin\Release\BimNinja.SheetExporter.Addin.addin" />
+          <RegistryValue Root="HKLM" Key="SOFTWARE\Autodesk\Revit\Addins\2024"
+                         Name="BimNinjaSheetExporter" Value="[INSTALLFOLDER]BimNinja.SheetExporter.Addin.addin"
+                         Type="string" />
+          <RegistryValue Root="HKLM" Key="SOFTWARE\Autodesk\Revit\Addins\2023"
+                         Name="BimNinjaSheetExporter" Value="[INSTALLFOLDER]BimNinja.SheetExporter.Addin.addin"
+                         Type="string" />
+          <RegistryValue Root="HKLM" Key="SOFTWARE\Autodesk\Revit\Addins\2022"
+                         Name="BimNinjaSheetExporter" Value="[INSTALLFOLDER]BimNinja.SheetExporter.Addin.addin"
+                         Type="string" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+
+    <ComponentGroup Id="AddinFiles" Directory="INSTALLFOLDER">
+      <Component>
+        <File Id="MainDll" Source="..\BimNinja.SheetExporter.Addin\bin\Release\BimNinja.SheetExporter.Addin.dll" />
+      </Component>
+      <Component>
+        <File Id="LicenseDll" Source="..\BimNinja.SheetExporter.Addin\bin\Release\BimNinja.Licensing.dll" />
+      </Component>
+    </ComponentGroup>
+
+    <ui:WixUI Id="WixUI_InstallDir" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <WixVariable Id="WixUIDialogBmp" Value="Icons\dialog.bmp" />
+    <WixVariable Id="WixUIBannerBmp" Value="Icons\banner.bmp" />
+    <Icon Id="AppIcon.ico" SourceFile="Icons\appicon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
+  </Package>
+</Wix>
